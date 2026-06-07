@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Eleven Eleven · spend your week toward the longevity cap</title>
+<meta name="description" content="Spend your week toward the longevity cap: ~45 MET-hours of aerobic movement + 120 minutes of resistance training. Play with the sliders and watch your regimen rebalance." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,900;1,9..144,500&family=Hanken+Grotesk:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --paper:#F4F0E6;
+    --paper-2:#FCFAF3;
+    --ink:#1A1B16;
+    --ink-soft:#3C3D33;
+    --muted:#767666;
+    --line:#E4DECF;
+    --line-2:#EBE6D8;
+    --track:#E7E1D1;
+    --card:#FCFAF3;
+    --card-border:#E8E2D2;
+    --strength:#DC5B2B;
+    --strength-soft:#F4D9C7;
+    --shadow:0 1px 2px rgba(26,27,22,.04), 0 12px 30px -18px rgba(26,27,22,.25);
+    --shadow-lg:0 2px 4px rgba(26,27,22,.05), 0 30px 60px -30px rgba(26,27,22,.35);
+    --r:18px;
+    --r-sm:12px;
+    --maxw:1180px;
+  }
+
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{
+    margin:0;
+    font-family:"Hanken Grotesk",system-ui,sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+    overflow-x:hidden;
+  }
+
+  /* ----- ambient texture ----- */
+  .grain{
+    position:fixed; inset:0; z-index:0; pointer-events:none;
+    opacity:.5; mix-blend-mode:multiply;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E");
+  }
+  .rings{
+    position:fixed; top:-180px; right:-160px; z-index:0; pointer-events:none;
+    width:560px; height:560px; opacity:.5;
+  }
+  .rings circle{fill:none; stroke:#D8CFB6; stroke-width:1.1;}
+
+  .wrap{position:relative; z-index:1; max-width:var(--maxw); margin:0 auto; padding:26px 20px 80px;}
+
+  /* ----- header ----- */
+  header{margin-bottom:22px;}
+  .kicker{
+    font-family:"DM Mono",monospace; font-size:11.5px; letter-spacing:.22em;
+    text-transform:uppercase; color:var(--muted); display:flex; align-items:center; gap:10px;
+    margin-bottom:14px;
+  }
+  .kicker .dot{width:7px; height:7px; border-radius:50%; background:var(--strength); box-shadow:0 0 0 4px var(--strength-soft);}
+  h1{
+    font-family:"Fraunces",serif; font-weight:900; font-optical-sizing:auto;
+    font-size:clamp(38px,8.5vw,72px); line-height:.96; letter-spacing:-.02em;
+    margin:0 0 14px; color:var(--ink);
+  }
+  h1 em{font-style:italic; font-weight:500; color:var(--ink-soft);}
+  .lede{max-width:60ch; color:var(--ink-soft); font-size:clamp(15px,2.4vw,17px);}
+  .lede b{font-weight:700; color:var(--ink);}
+  .lede .met{font-family:"DM Mono",monospace; font-weight:500; background:#fff8; padding:1px 6px; border-radius:6px; border:1px solid var(--line); white-space:nowrap;}
+
+  /* ----- layout ----- */
+  .grid{display:grid; gap:22px; grid-template-columns:1fr;}
+  @media(min-width:920px){
+    .grid{grid-template-columns:minmax(0,1.05fr) minmax(0,1fr); gap:30px; align-items:start;}
+  }
+
+  /* ----- instrument panel ----- */
+  .instrument{z-index:5;}
+  .instrument .panel + .panel{margin-top:18px;}
+  .panel{
+    background:var(--card); border:1px solid var(--card-border); border-radius:var(--r);
+    box-shadow:var(--shadow); padding:22px;
+  }
+  @media(max-width:919px){ .panel.hero{padding:16px 16px 18px;} }
+
+  .hero-top{display:flex; align-items:flex-end; justify-content:space-between; gap:16px; margin-bottom:6px;}
+  .hero-num{display:flex; align-items:baseline; gap:8px;}
+  .hero-num .big{
+    font-family:"Fraunces",serif; font-weight:900; font-optical-sizing:auto;
+    font-size:clamp(50px,12vw,84px); line-height:.82; letter-spacing:-.025em;
+    font-variant-numeric:tabular-nums;
+  }
+  .hero-num .unit{font-family:"DM Mono",monospace; font-size:13px; color:var(--muted); letter-spacing:.02em; transform:translateY(-2px);}
+  .hero-cap{text-align:right; font-family:"DM Mono",monospace; font-size:12px; color:var(--muted); line-height:1.4;}
+  .hero-cap b{color:var(--ink); font-weight:500;}
+  .hero-status{
+    display:inline-flex; align-items:center; gap:7px; font-size:13px; font-weight:600;
+    padding:5px 11px 5px 9px; border-radius:999px; margin-top:2px;
+  }
+  .hero-status .pip{width:8px; height:8px; border-radius:50%; flex:none;}
+  .st-under{background:#fff; border:1px solid var(--line); color:var(--ink-soft);}
+  .st-under .pip{background:#C9A94A;}
+  .st-cap{background:#EAF3E4; border:1px solid #CFE3C2; color:#2F5A2C;}
+  .st-cap .pip{background:#5BA84F;}
+  .st-over{background:#FBEDE4; border:1px solid #F0D3BF; color:#9A4A23;}
+  .st-over .pip{background:var(--strength);}
+
+  /* ----- the budget bar ----- */
+  .bar-label{display:flex; justify-content:space-between; align-items:center; margin:18px 0 8px; font-size:12.5px;}
+  .bar-label .tag{font-family:"DM Mono",monospace; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); font-size:11px;}
+  .bar-label .val{font-family:"DM Mono",monospace; color:var(--ink-soft);}
+
+  .budget{position:relative; height:34px; border-radius:10px; background:var(--track); overflow:hidden; box-shadow:inset 0 0 0 1px rgba(26,27,22,.05);}
+  .budget .fill{position:absolute; inset:0; display:flex; align-items:stretch;}
+  .seg{height:100%; min-width:0; transition:width .42s cubic-bezier(.22,.61,.36,1), background .3s; position:relative;}
+  .seg::after{content:""; position:absolute; inset:0; background:linear-gradient(rgba(255,255,255,.22),rgba(0,0,0,.06));}
+  .seg + .seg{box-shadow:inset 1px 0 0 rgba(255,255,255,.35);}
+  .seg-str{background:var(--strength);}
+  .seg-str::before{content:""; position:absolute; inset:0; z-index:1; background:repeating-linear-gradient(45deg,rgba(255,255,255,.24),rgba(255,255,255,.24) 4px,transparent 4px,transparent 8px);}
+  .cap-mark{position:absolute; top:-4px; bottom:-4px; width:2px; background:var(--ink); transition:left .42s cubic-bezier(.22,.61,.36,1); z-index:3;}
+  .cap-mark::after{content:attr(data-cap); position:absolute; top:-16px; left:50%; transform:translateX(-50%); font-family:"DM Mono",monospace; font-size:10px; color:var(--ink); background:var(--card); padding:0 3px;}
+  .over-zone{position:absolute; top:0; bottom:0; right:0; background:repeating-linear-gradient(45deg,transparent,transparent 5px,rgba(26,27,22,.10) 5px,rgba(26,27,22,.10) 7px); z-index:2; transition:left .42s; pointer-events:none;}
+
+  /* strength bar */
+  .sbar{position:relative; height:18px; border-radius:8px; background:var(--track); overflow:hidden; box-shadow:inset 0 0 0 1px rgba(26,27,22,.05);}
+  .sbar .sfill{position:absolute; inset:0 auto 0 0; background:linear-gradient(90deg,#E9703F,var(--strength)); border-radius:8px; transition:width .42s cubic-bezier(.22,.61,.36,1);}
+  .sbar .smark{position:absolute; top:-3px; bottom:-3px; width:2px; background:var(--ink); transition:left .42s;}
+
+  /* ----- legend / equivalents ----- */
+  .legend{display:flex; flex-wrap:wrap; gap:6px 14px; margin-top:16px;}
+  .lg{display:flex; align-items:center; gap:7px; font-size:12.5px; color:var(--ink-soft);}
+  .lg .sw{width:11px; height:11px; border-radius:3px; flex:none;}
+  .lg .h{font-family:"DM Mono",monospace; color:var(--muted); font-size:11.5px;}
+
+  .equiv{margin-top:20px; border-top:1px dashed var(--line); padding-top:16px;}
+  .equiv h3{font-family:"DM Mono",monospace; font-weight:500; font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); margin:0 0 4px;}
+  .equiv .head{font-family:"Fraunces",serif; font-size:18px; font-weight:600; margin-bottom:12px; color:var(--ink); line-height:1.3;}
+  .equiv .head b{font-weight:900;}
+  .swap{display:flex; flex-wrap:wrap; gap:8px;}
+  .chip{
+    appearance:none; cursor:pointer; font-family:"Hanken Grotesk",sans-serif; font-size:13px; font-weight:600;
+    border:1px solid var(--line); background:var(--paper-2); color:var(--ink); padding:8px 12px;
+    border-radius:999px; display:inline-flex; align-items:center; gap:8px; transition:transform .12s, box-shadow .15s, border-color .15s, background .15s;
+  }
+  .chip:hover{border-color:#cfc7b0; box-shadow:0 4px 14px -8px rgba(26,27,22,.4); transform:translateY(-1px);}
+  .chip:active{transform:translateY(0);}
+  .chip .sw{width:10px; height:10px; border-radius:3px; flex:none;}
+  .chip .amt{font-family:"DM Mono",monospace; color:var(--muted); font-weight:400;}
+  .chip .plus{font-family:"DM Mono",monospace; color:var(--strength); font-weight:500;}
+  .equiv.done .head{color:#2F5A2C;}
+  .equiv h3 .shuffle{float:right; appearance:none; border:1px solid var(--line); background:var(--paper-2); color:var(--ink-soft); font-family:"DM Mono",monospace; font-size:10px; letter-spacing:.04em; text-transform:uppercase; padding:3px 9px; border-radius:999px; cursor:pointer; transition:border-color .15s, color .15s, transform .12s;}
+  .equiv h3 .shuffle:hover{border-color:var(--ink); color:var(--ink);}
+  .equiv h3 .shuffle:active{transform:scale(.96);}
+  .chip-main{display:flex; flex-direction:column; align-items:flex-start; line-height:1.18; min-width:0;}
+  .chip-nm{font-weight:600;}
+  .chip-cat{font-family:"DM Mono",monospace; font-size:9.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.03em; white-space:nowrap; max-width:130px; overflow:hidden; text-overflow:ellipsis;}
+
+  /* ----- controls column ----- */
+  .controls .panel + .panel{margin-top:18px;}
+  .sect-head{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:4px;}
+  .sect-head h2{font-family:"Fraunces",serif; font-weight:600; font-size:21px; margin:0; letter-spacing:-.01em;}
+  .sect-head .sub{font-size:12.5px; color:var(--muted);}
+
+  .lock{
+    display:inline-flex; align-items:center; gap:9px; cursor:pointer; user-select:none;
+    font-size:13px; font-weight:600; color:var(--ink-soft); padding:6px 4px;
+  }
+  .lock input{position:absolute; opacity:0; pointer-events:none;}
+  .switch{width:42px; height:24px; border-radius:999px; background:var(--track); position:relative; transition:background .2s; flex:none; box-shadow:inset 0 0 0 1px rgba(26,27,22,.06);}
+  .switch::after{content:""; position:absolute; top:3px; left:3px; width:18px; height:18px; border-radius:50%; background:#fff; box-shadow:0 1px 3px rgba(0,0,0,.25); transition:left .2s;}
+  .lock input:checked + .switch{background:var(--ink);}
+  .lock input:checked + .switch::after{left:21px;}
+  .lock .lk-on{display:none;} .lock .lk-off{display:inline;}
+  .lock input:checked ~ .lk-on{display:inline;} .lock input:checked ~ .lk-off{display:none;}
+
+  /* rows */
+  .rows{margin-top:14px; display:flex; flex-direction:column; gap:4px;}
+  .row{padding:14px 2px; border-top:1px solid var(--line-2);}
+  .row:first-child{border-top:0;}
+  .row-top{display:flex; align-items:center; gap:11px; margin-bottom:11px;}
+  .row-sw{width:13px; height:13px; border-radius:4px; flex:none; box-shadow:inset 0 0 0 1px rgba(0,0,0,.08);}
+  .row-name{flex:1; min-width:0; display:flex; flex-direction:column; gap:2px;}
+  .row-name .rn{font-weight:600; font-size:14px; line-height:1.25;}
+  .row-name .meta{font-family:"DM Mono",monospace; font-size:11px; color:var(--muted); font-weight:400;}
+  .row-readout{text-align:right; line-height:1.15;}
+  .row-readout .dur{font-family:"DM Mono",monospace; font-weight:500; font-size:14.5px; color:var(--ink);}
+  .row-readout .met{font-family:"DM Mono",monospace; font-size:11px; color:var(--muted);}
+  .row-x{appearance:none; border:0; background:transparent; color:var(--muted); cursor:pointer; font-size:18px; line-height:1; padding:4px 2px 4px 8px; border-radius:8px; transition:color .15s;}
+  .row-x:hover{color:var(--strength);}
+
+  /* range inputs */
+  input[type=range]{
+    -webkit-appearance:none; appearance:none; width:100%; height:30px; background:transparent; cursor:grab; margin:0; display:block;
+  }
+  input[type=range]:active{cursor:grabbing;}
+  input[type=range]::-webkit-slider-runnable-track{height:8px; border-radius:6px; background:var(--track-color,var(--track)); box-shadow:inset 0 0 0 1px rgba(26,27,22,.05);}
+  input[type=range]::-moz-range-track{height:8px; border-radius:6px; background:var(--track-color,var(--track)); box-shadow:inset 0 0 0 1px rgba(26,27,22,.05);}
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none; appearance:none; width:24px; height:24px; border-radius:50%;
+    background:#fff; border:2px solid var(--thumb,var(--ink)); margin-top:-8px;
+    box-shadow:0 2px 6px rgba(26,27,22,.28); transition:transform .12s;
+  }
+  input[type=range]::-moz-range-thumb{
+    width:24px; height:24px; border-radius:50%; background:#fff; border:2px solid var(--thumb,var(--ink));
+    box-shadow:0 2px 6px rgba(26,27,22,.28);
+  }
+  input[type=range]:active::-webkit-slider-thumb{transform:scale(1.12);}
+  input[type=range]:focus-visible{outline:none;}
+  input[type=range]:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 4px var(--ring,rgba(26,27,22,.18)), 0 2px 6px rgba(26,27,22,.28);}
+
+  /* browse button */
+  .add-btn{
+    appearance:none; cursor:pointer; font-family:"Hanken Grotesk",sans-serif; font-weight:600; font-size:14px;
+    border:1.5px dashed #cdc5ad; background:transparent; color:var(--ink-soft); padding:11px 14px; width:100%;
+    border-radius:var(--r-sm); transition:border-color .15s, background .15s, color .15s;
+  }
+  .add-btn:hover{border-color:var(--ink); background:#fff7; color:var(--ink);}
+  @keyframes fade{from{opacity:0; transform:translateY(-4px);} to{opacity:1; transform:none;}}
+
+  /* strength block */
+  .strength-block{margin-top:6px;}
+  .sb-top{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px;}
+  .sb-top .nm{display:flex; align-items:center; gap:10px; font-weight:600; font-size:15.5px;}
+  .sb-top .nm .ic{width:13px; height:13px; border-radius:4px; background:var(--strength); flex:none;}
+  .sb-read{font-family:"DM Mono",monospace; font-size:14.5px; color:var(--ink); text-align:right;}
+  .sb-read small{display:block; font-size:11px; color:var(--muted);}
+  .sb-cross{font-family:"DM Mono",monospace; font-size:11px; color:var(--muted); margin-top:11px; line-height:1.5;}
+  .sb-cross b{color:var(--strength); font-weight:500;}
+  .sb-cross .src{color:#a8a392;}
+
+  footer{margin-top:34px; text-align:center; color:var(--muted); font-size:12.5px; line-height:1.6; max-width:62ch; margin-left:auto; margin-right:auto;}
+  footer a{color:var(--ink-soft);}
+  .reset{appearance:none; border:1px solid var(--line); background:var(--paper-2); color:var(--ink-soft); font-family:"DM Mono",monospace; font-size:11px; letter-spacing:.06em; text-transform:uppercase; padding:7px 12px; border-radius:999px; cursor:pointer; margin-top:14px; transition:border-color .15s, color .15s;}
+  .reset:hover{border-color:var(--ink); color:var(--ink);}
+
+  /* ---- activity browser ---- */
+  .browse-panel{margin-top:12px; border:1px solid var(--line); border-radius:var(--r-sm); background:var(--paper-2); padding:12px; animation:fade .25s ease;}
+  .bcontrols{display:flex; flex-direction:column; gap:10px; margin-bottom:10px;}
+  .search{width:100%; font:inherit; font-size:15px; padding:11px 13px; border-radius:10px; border:1px solid var(--line); background:#fff; color:var(--ink);}
+  .search::placeholder{color:#a8a392;}
+  .search:focus{outline:none; border-color:var(--ink); box-shadow:0 0 0 3px rgba(26,27,22,.08);}
+  .brow2{display:flex; gap:8px; align-items:center; justify-content:space-between; flex-wrap:wrap;}
+  .cat-filter{font:inherit; font-size:13px; padding:9px 10px; border-radius:9px; border:1px solid var(--line); background:#fff; color:var(--ink-soft); max-width:58%;}
+  .cat-filter:focus{outline:none; border-color:var(--ink);}
+  .sorters{display:inline-flex; gap:3px; background:var(--track); padding:3px; border-radius:10px;}
+  .sortbtn{appearance:none; border:0; background:transparent; font:inherit; font-size:12.5px; font-weight:600; color:var(--muted); padding:6px 11px; border-radius:8px; cursor:pointer; display:inline-flex; align-items:center; gap:5px;}
+  .sortbtn.is-active{background:#fff; color:var(--ink); box-shadow:0 1px 3px rgba(0,0,0,.12);}
+  .sortbtn .arr{font-size:10px; width:7px;}
+  .results{max-height:330px; overflow-y:auto; margin:0 -4px; display:flex; flex-direction:column; gap:1px; padding:2px 4px; overscroll-behavior:contain;}
+  .results::-webkit-scrollbar{width:10px;}
+  .results::-webkit-scrollbar-thumb{background:#d8d1bd; border-radius:6px; border:3px solid var(--paper-2);}
+  .res{appearance:none; text-align:left; border:0; background:transparent; cursor:pointer; width:100%; display:flex; align-items:center; gap:11px; padding:7px 8px; border-radius:9px; font:inherit; color:var(--ink); transition:background .12s;}
+  .res:hover:not(:disabled){background:#fff;}
+  .res:disabled{cursor:default;}
+  .res.added{opacity:.45;}
+  .res-met{flex:none; min-width:40px; height:30px; padding:0 6px; border-radius:8px; display:inline-flex; align-items:center; justify-content:center; font-family:"DM Mono",monospace; font-weight:500; font-size:13px;}
+  .res-main{flex:1; min-width:0; display:flex; flex-direction:column; line-height:1.22;}
+  .res-desc{font-size:13px; font-weight:500;}
+  .res-cat{font-size:10.5px; color:var(--muted); font-family:"DM Mono",monospace; text-transform:uppercase; letter-spacing:.04em;}
+  .res-add{flex:none; width:26px; height:26px; border-radius:50%; border:1px solid var(--line); display:inline-flex; align-items:center; justify-content:center; font-size:17px; color:var(--ink-soft); background:#fff;}
+  .res:hover:not(:disabled) .res-add{border-color:var(--ink); color:var(--ink);}
+  .results-note{font-size:11.5px; color:var(--muted); font-family:"DM Mono",monospace; margin-top:9px; text-align:center;}
+
+  /* ---- target selector ---- */
+  .target-bar{margin-bottom:16px; padding-bottom:14px; border-bottom:1px solid var(--line-2);}
+  .target-pick{display:flex; align-items:center; gap:10px;}
+  .target-pick .tlabel{font-family:"DM Mono",monospace; font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--muted); flex:none;}
+  #targetSel{flex:1; min-width:0; font:inherit; font-weight:600; font-size:13.5px; padding:8px 11px; border-radius:10px; border:1px solid var(--line); background:#fff; color:var(--ink); cursor:pointer;}
+  #targetSel:focus{outline:none; border-color:var(--ink);}
+  .target-custom{display:flex; gap:8px 16px; margin-top:11px; flex-wrap:wrap;}
+  .target-custom[hidden]{display:none;}
+  .target-custom label{font-size:12px; color:var(--muted); display:flex; align-items:center; gap:6px;}
+  .target-custom input{width:62px; font:inherit; font-family:"DM Mono",monospace; font-weight:500; color:var(--ink); padding:6px 8px; border-radius:8px; border:1px solid var(--line); background:#fff;}
+  .target-custom input:focus{outline:none; border-color:var(--ink);}
+  .target-cite{margin-top:10px; font-size:11.5px; color:var(--muted); line-height:1.45;}
+  .target-cite a{color:var(--ink-soft); text-decoration:underline; text-underline-offset:2px;}
+
+  /* ---- dose-response curves ---- */
+  .curve{margin-top:16px;}
+  .curve-cap{font-size:12.5px; color:var(--ink-soft); margin-bottom:2px; line-height:1.4;}
+  .curve-cap b{color:var(--ink); font-family:"DM Mono",monospace; font-weight:500;}
+  svg.dr{width:100%; height:auto; display:block; overflow:visible;}
+  svg.dr .ax{stroke:var(--line); stroke-width:1;}
+  svg.dr .area{fill:rgba(91,168,79,.12);}
+  svg.dr .line{fill:none; stroke:#5BA84F; stroke-width:2.4; stroke-linejoin:round; stroke-linecap:round;}
+  svg.dr .cap{stroke:var(--ink); stroke-width:1.3; stroke-dasharray:3 3; opacity:.65;}
+  svg.dr .caplbl{fill:var(--ink); font-family:"DM Mono",monospace; font-size:9px; opacity:.7;}
+  svg.dr .drop{stroke:var(--ink); stroke-width:1.1; stroke-dasharray:2 2; opacity:.5;}
+  svg.dr .you{fill:var(--ink); stroke:#fff; stroke-width:1.6;}
+  svg.dr .youlbl{fill:var(--ink); font-family:"DM Mono",monospace; font-weight:500; font-size:10px;}
+  svg.dr .axlbl{fill:var(--muted); font-family:"DM Mono",monospace; font-size:9px;}
+  .curve-note{margin-top:14px; font-size:11px; color:var(--muted); line-height:1.45; border-top:1px dashed var(--line); padding-top:11px;}
+
+  /* ---- outcome switcher tabs ---- */
+  .metric-tabs{display:flex; flex-wrap:wrap; gap:5px; margin:2px 0 12px;}
+  .mtab{appearance:none; border:1px solid var(--line); background:var(--paper-2); color:var(--muted); font:inherit; font-size:12px; font-weight:600; padding:5px 11px; border-radius:999px; cursor:pointer; display:inline-flex; align-items:center; transition:border-color .15s, color .15s, background .15s, transform .12s;}
+  .mtab:hover{border-color:#cfc7b0; color:var(--ink-soft); transform:translateY(-1px);}
+  .mtab:active{transform:translateY(0);}
+  .mtab.is-active{color:#fff;}
+  .mtab .dotc{width:8px; height:8px; border-radius:50%; margin-right:6px; flex:none;}
+  .curve-caveat{font-size:11.5px; color:var(--ink-soft); line-height:1.5; margin-top:14px; padding:10px 12px; background:var(--paper); border-radius:10px; border:1px solid var(--line); border-left:3px solid var(--curve-c,var(--line));}
+  .curve-caveat[hidden]{display:none;}
+
+  /* ---- per-day breakdown ---- */
+  .perday{display:flex; flex-direction:column; gap:1px; margin-top:6px;}
+  .pd{display:flex; align-items:center; gap:11px; padding:9px 2px; border-top:1px solid var(--line-2);}
+  .pd:first-child{border-top:0;}
+  .pd-sw{width:11px; height:11px; border-radius:3px; flex:none;}
+  .pd-name{flex:1; min-width:0; font-weight:600; font-size:13px; display:flex; flex-direction:column; gap:1px;}
+  .pd-name .pd-wk{font-family:"DM Mono",monospace; font-size:10.5px; color:var(--muted); font-weight:400;}
+  .pd-cad{font-family:"DM Mono",monospace; font-size:11px; color:var(--ink-soft); text-align:right; flex:none;}
+  .pd-empty{color:var(--muted); font-size:13px; padding:6px 0;}
+
+  /* reveal animation */
+  .reveal{opacity:0; transform:translateY(14px); animation:rise .7s cubic-bezier(.22,.61,.36,1) forwards;}
+  @keyframes rise{to{opacity:1; transform:none;}}
+  @media(prefers-reduced-motion:reduce){
+    *{animation-duration:.01ms !important; transition-duration:.01ms !important;}
+    .reveal{opacity:1; transform:none;}
+  }
+</style>
+</head>
+<body>
+<div class="grain"></div>
+<svg class="rings" viewBox="0 0 560 560" aria-hidden="true">
+  <circle cx="280" cy="280" r="80"/><circle cx="280" cy="280" r="130"/>
+  <circle cx="280" cy="280" r="180"/><circle cx="280" cy="280" r="230"/>
+  <circle cx="280" cy="280" r="278"/>
+</svg>
+
+<div class="wrap">
+  <header class="reveal" style="animation-delay:.02s">
+    <div class="kicker"><span class="dot"></span> Eleven&nbsp;Eleven · Longevity MET-hours</div>
+    <h1>Spend your week<br><em>toward the cap.</em></h1>
+    <p class="lede">
+      A longevity model has two weekly ceilings where the benefit maxes out:
+      <b>~<span class="met">45 MET-hours</span> of aerobic movement</b> and
+      <b><span class="met">120 min</span> of resistance training</b>.
+      MET-hours = intensity × time — so 45 is about <b>15h walking</b>, <b>5½h cycling</b>, or <b>4¾h running</b>.
+      Build your week below and watch the budget rebalance.
+    </p>
+  </header>
+
+  <div class="grid">
+    <!-- ===================== INSTRUMENT ===================== -->
+    <section class="instrument reveal" style="animation-delay:.10s" aria-label="Your weekly movement budget">
+      <div class="panel hero">
+        <div class="target-bar">
+          <label class="target-pick"><span class="tlabel">Target</span>
+            <select id="targetSel" aria-label="Weekly target"></select>
+          </label>
+          <div class="target-custom" id="targetCustom" hidden>
+            <label>aerobic <input type="number" id="capAer" min="5" max="90" step="2.5" inputmode="decimal"> MET-hrs</label>
+            <label>resistance <input type="number" id="capRes" min="0" max="300" step="10" inputmode="numeric"> min</label>
+          </div>
+          <div class="target-cite" id="targetCite"></div>
+        </div>
+        <div class="hero-top">
+          <div class="hero-num">
+            <span class="big" id="metTotal">0</span>
+            <span class="unit">/ <span id="capUnit">45</span><br>MET-hrs</span>
+          </div>
+          <div class="hero-cap">
+            <span id="statusWrap"></span>
+          </div>
+        </div>
+
+        <div class="bar-label">
+          <span class="tag">Aerobic budget</span>
+          <span class="val" id="aerobicVal">0 of 45 MET-hrs</span>
+        </div>
+        <div class="budget" id="budgetBar">
+          <div class="fill" id="budgetFill"></div>
+          <div class="over-zone" id="overZone" style="left:100%"></div>
+          <div class="cap-mark" id="capMark" style="left:100%"></div>
+        </div>
+
+        <div class="bar-label">
+          <span class="tag">Resistance training</span>
+          <span class="val" id="strengthVal">0 of 120 min</span>
+        </div>
+        <div class="sbar">
+          <div class="sfill" id="sFill" style="width:0%"></div>
+          <div class="smark" id="sMark" style="left:100%"></div>
+        </div>
+
+        <div class="legend" id="legend"></div>
+
+        <div class="equiv" id="equiv">
+          <h3>Ways to close the gap <button type="button" id="shuffleBtn" class="shuffle" title="Pick 4 random activities">⤮ shuffle</button></h3>
+          <div class="head" id="equivHead"></div>
+          <div class="swap" id="equivSwap"></div>
+        </div>
+      </div>
+
+      <div class="panel curve-panel">
+        <div class="sect-head">
+          <div>
+            <h2>Where you land</h2>
+            <div class="sub">Lower risk vs your weekly dose — pick an outcome.</div>
+          </div>
+        </div>
+        <div class="metric-tabs" id="metricTabs" role="group" aria-label="Outcome"></div>
+        <div class="curve" id="curveAerobic"></div>
+        <div class="curve" id="curveResist"></div>
+        <div class="curve-caveat" id="curveCaveat" hidden></div>
+        <div class="curve-note">Approximate dose-response, digitised by dose band from published meta-analyses — associations, not proof of causation, and the high-dose tail is extrapolated from sparse data. Your aerobic dose includes the resistance crossover. Source: <span id="curveSrc"></span></div>
+      </div>
+    </section>
+
+    <!-- ===================== CONTROLS ===================== -->
+    <section class="controls reveal" style="animation-delay:.18s">
+      <div class="panel">
+        <div class="sect-head">
+          <div>
+            <h2>Aerobic movement</h2>
+            <div class="sub">Drag to set hours per week.</div>
+          </div>
+          <label class="lock" title="Keep the total pinned at the 45 MET-hour cap. Drag one and the rest scale to fit.">
+            <input type="checkbox" id="lockToggle" />
+            <span class="switch"></span>
+            <span class="lk-off">Free</span><span class="lk-on">Locked&nbsp;at&nbsp;45</span>
+          </label>
+        </div>
+
+        <div class="rows" id="rows"></div>
+
+        <div class="browse">
+          <button class="add-btn" id="browseBtn">+ Browse activities</button>
+          <div class="browse-panel" id="browsePanel" hidden>
+            <div class="bcontrols">
+              <input id="search" class="search" type="search" autocomplete="off" placeholder="Search activities…" aria-label="Search activities" />
+              <div class="brow2">
+                <select id="catFilter" class="cat-filter" aria-label="Filter by category"></select>
+                <div class="sorters" role="group" aria-label="Sort by">
+                  <button type="button" class="sortbtn is-active" data-key="met">MET <span class="arr">▾</span></button>
+                  <button type="button" class="sortbtn" data-key="name">A–Z <span class="arr"></span></button>
+                </div>
+              </div>
+            </div>
+            <div class="results" id="results"></div>
+            <div class="results-note" id="resultsNote"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="sect-head">
+          <div>
+            <h2>Resistance training</h2>
+            <div class="sub">Has its own 120-min goal — and crosses over into your aerobic budget.</div>
+          </div>
+        </div>
+        <div class="strength-block">
+          <div class="sb-top">
+            <div class="nm"><span class="ic"></span> Strength / weights</div>
+            <div class="sb-read"><span id="strMinRead">0 min</span><small id="strHrs">0h 0m / week</small></div>
+          </div>
+          <input type="range" id="strRange" min="0" max="300" step="5" value="0"
+                 style="--track-color:var(--strength-soft); --thumb:var(--strength); --ring:rgba(220,91,43,.25)" />
+          <div class="sb-cross" id="sbCross"></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="sect-head">
+          <div>
+            <h2>Your week, by day</h2>
+            <div class="sub">Ways to spread each target across the week.</div>
+          </div>
+        </div>
+        <div class="perday" id="perday"></div>
+      </div>
+
+      <div style="text-align:center">
+        <button class="reset" id="resetBtn">Reset week</button>
+      </div>
+    </section>
+  </div>
+
+  <footer class="reveal" style="animation-delay:.26s">
+    Framing from a longevity meta-analysis discussed on r/Nutraceuticalscience: <b>≥120 min/week</b> resistance training and aerobic activity up to <b>~45 MET-hours/week</b> were the maximum beneficial amounts. Activity MET values are the full <a href="https://pacompendium.com/adult-compendium/" target="_blank" rel="noopener"><b>2024 Adult Compendium of Physical Activities</b></a> (<span id="catalogCount">1,111</span> activities — which is where <b>Eleven&nbsp;Eleven</b> takes its name). This is a planning toy, not medical advice — more movement past the cap is still healthy, it just stops adding measured longevity benefit in this model.
+  </footer>
+</div>
+
+<script src="data/compendium.js"></script>
+<script>
+(() => {
+  "use strict";
+
+  // ---- dataset: the full 2024 Adult Compendium of Physical Activities (scraped → data/compendium.js) ----
+  const COMPENDIUM = Array.isArray(window.COMPENDIUM) ? window.COMPENDIUM : [];
+  const byId = Object.fromEntries(COMPENDIUM.map(a => [a.code, a]));
+  const CATS = [...new Set(COMPENDIUM.map(a => a.cat))];
+  const STEP = 0.25;         // hour granularity (15 min)
+  const SLIDER_REF = 45;     // each activity slider spans 0..(45/met) hours, independent of the chosen target
+
+  // resistance training is itself aerobic work, so it crosses over into the MET-hour budget.
+  // textbook anchor: "Resistance (weight) training, squats, deadlift, slow or explosive effort" = 5.0 MET (2024 Compendium, code 02052).
+  const RESIST_REF = "02052";
+  const RESIST_MET = (byId[RESIST_REF] && byId[RESIST_REF].met) || 5.0;
+
+  // ---- selectable, research-backed weekly targets (the "cap") ----
+  const TARGETS = {
+    longevity: { label:"Max longevity benefit  ·  45 MET-hrs / 120 min", aerobic:45, resistance:120,
+      cite:"Zhang et al. 2026, Br J Sports Med — all-cause mortality benefit plateaus at ~45 MET-hrs aerobic + ~120 min resistance (147k people, 30 yrs).",
+      url:"https://pubmed.ncbi.nlm.nih.gov/42230125/" },
+    custom: { label:"Custom target…", aerobic:45, resistance:120,
+      cite:"Set your own weekly aerobic + resistance targets.", url:null },
+  };
+  let targetId  = "longevity";
+  let CAP       = TARGETS.longevity.aerobic;     // active aerobic MET-hour target
+  let STR_GOAL  = TARGETS.longevity.resistance;  // active resistance minutes target
+
+  // ---- dose-response by outcome (% lower risk vs weekly dose) ----
+  // Approximate curves digitised by dose band from published dose-response meta-analyses. The app's x-axis is
+  // absolute MET-hours/week (aerobic) and minutes/week (resistance); numbers are directional, not exact hazard ratios.
+  const OUTCOMES = {
+    mortality:  { label:"All-cause mortality", short:"All-cause", color:"#5BA84F",
+      aer:[[0,0],[7.5,26],[15,36],[22.5,43],[30,48],[37,52],[45,55],[52,56]],
+      res:[[0,0],[15,8],[30,12],[45,14],[60,15],[90,14],[120,13],[180,11]],
+      src:"Zhang 2026 BJSM · resistance: Momma 2022 BJSM" },
+    cvd:        { label:"Cardiovascular disease", short:"Heart", color:"#C0492B",
+      aer:[[0,0],[7.5,24],[15,34],[22.5,41],[30,45],[37,48],[45,50],[52,51]],
+      res:[[0,0],[15,9],[30,14],[45,16],[60,17],[90,15],[120,13],[180,11]],
+      src:"Garcia 2023 BJSM · resistance: Momma 2022 BJSM" },
+    t2d:        { label:"Type 2 diabetes", short:"Diabetes", color:"#2F6DB0",
+      aer:[[0,0],[7.5,22],[15,32],[22.5,39],[30,43],[37,46],[45,48],[52,49]],
+      res:[[0,0],[15,7],[30,11],[45,13],[60,14],[90,15],[120,15],[180,14]],
+      src:"Aune 2015 · resistance: Momma 2022 BJSM" },
+    depression: { label:"Depression", short:"Depression", color:"#7A57B0",
+      aer:[[0,0],[7.5,22],[15,27],[22.5,29],[30,30],[37,31],[45,32],[52,32]],
+      res:[[0,0],[15,11],[30,16],[45,19],[60,20],[90,21],[120,20],[180,18]],
+      src:"Pearce 2022 JAMA Psychiatry · resistance: Gordon 2018",
+      note:"Most of the benefit shows up at low doses and plateaus quickly — extra volume adds little." },
+    cancer:     { label:"Cancer (combined sites)", short:"Cancer", color:"#B0822B",
+      aer:[[0,0],[7.5,11],[15,16],[22.5,18],[30,19],[37,20],[45,20],[52,20]],
+      res:[[0,0],[15,4],[30,7],[45,9],[60,10],[90,10],[120,9],[180,8]],
+      src:"Garcia 2023 BJSM & Moore 2016 · resistance: Momma 2022 BJSM",
+      note:"“Cancer” averages many sites that behave differently: colon, breast and endometrial risk fall most, while melanoma and prostate cancer actually rise with more activity. The benefit flattens fast — most of it is reached at moderate volumes." },
+  };
+  let outcomeKey = "mortality";
+
+  // reference codes for the "close the gap" equivalents:
+  // walking 2.5mph (3.0) · cycling 12–14mph (8.0) · running 6mph (9.3) · jump rope moderate (11.8)
+  const REFS = ["17170", "01030", "12050", "15551"];
+
+  const DEFAULTS = {
+    rows: [ {id:"17170", hours:3}, {id:"01030", hours:1.5} ],
+    strengthMin: 60,
+    locked: false,
+  };
+
+  // ---- per-activity colour: hue from category, lightness jittered by code (cohesive, still distinct) ----
+  const hueByCat = {};
+  CATS.forEach((c,i) => { hueByCat[c] = Math.round((i*360/Math.max(1,CATS.length) + 18) % 360); });
+  const lightFor = code => { let h=0; for(let i=0;i<code.length;i++) h=(h*31+code.charCodeAt(i))|0; return 47 + (Math.abs(h)%16); };
+  const colorFor = a => `hsl(${hueByCat[a.cat] ?? 200} 50% ${lightFor(a.code)}%)`;
+  const colorA   = (a,al) => `hsl(${hueByCat[a.cat] ?? 200} 50% ${lightFor(a.code)}% / ${al})`;
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const shortName = a => a.desc.split(",")[0].trim();
+
+  // ---- state ----
+  let state = structuredClone(DEFAULTS);
+  let firstPaint = true;
+  let gapPicks = null;   // null → default reference activities; else 4 shuffled codes
+
+  // ---- persistence ----
+  const STORE_KEY = "mh.week.v2";
+  function saveState(){
+    try{ localStorage.setItem(STORE_KEY, JSON.stringify({
+      rows:state.rows, strengthMin:state.strengthMin, locked:state.locked,
+      targetId, capAer:CAP, capRes:STR_GOAL, outcomeKey
+    })); }catch(e){}
+  }
+  function loadState(){
+    try{
+      const d = JSON.parse(localStorage.getItem(STORE_KEY) || "null");
+      if(!d || !Array.isArray(d.rows)) return null;
+      const rows = d.rows.filter(r => r && byId[r.id] && isFinite(r.hours)).map(r => ({id:r.id, hours:Math.max(0,+r.hours)}));
+      const strengthMin = isFinite(d.strengthMin) ? Math.max(0, Math.min(300, Math.round(+d.strengthMin/5)*5)) : DEFAULTS.strengthMin;
+      const tid = (d.targetId in TARGETS) ? d.targetId : "longevity";
+      const target = { id:tid,
+        aer: isFinite(d.capAer) ? +d.capAer : TARGETS[tid].aerobic,
+        res: isFinite(d.capRes) ? +d.capRes : TARGETS[tid].resistance };
+      const outcome = (d.outcomeKey in OUTCOMES) ? d.outcomeKey : "mortality";
+      return { state:{rows, strengthMin, locked: !!d.locked}, target, outcome };
+    }catch(e){ return null; }
+  }
+
+  // ---- helpers ----
+  const $ = sel => document.querySelector(sel);
+  const maxHours = met => Math.round((SLIDER_REF / met) / STEP) * STEP;  // slider span: hours of this activity alone to reach 45 MET-hrs
+  const metHours = r => byId[r.id].met * r.hours;
+  const rowsMet  = () => state.rows.reduce((s,r) => s + metHours(r), 0);   // aerobic from the activity sliders
+  const resistMetHrs = () => (state.strengthMin/60) * RESIST_MET;         // resistance training's aerobic crossover
+  const totalMet = () => rowsMet() + resistMetHrs();                      // everything that counts toward the cap
+  const rowsCap  = () => Math.max(0, CAP - resistMetHrs());               // budget left for the sliders once resistance is counted
+  const fmtHrs = h => {
+    const m = Math.round(h*60);
+    const H = Math.floor(m/60), M = m%60;
+    if (H && M) return `${H}h ${M}m`;
+    if (H) return `${H}h`;
+    return `${M}m`;
+  };
+  const fmtMet = v => (Math.round(v*10)/10).toString();
+
+  // ---- redistribution: keep total pinned at CAP when locked ----
+  function redistribute(activeIdx){
+    const rows = state.rows;
+    const eActive = metHours(rows[activeIdx]);
+    const remaining = Math.max(0, rowsCap() - eActive);
+    let otherSum = 0;
+    rows.forEach((r,i) => { if(i!==activeIdx) otherSum += metHours(r); });
+    if (otherSum <= 0) return;                 // nothing to scale into
+    const factor = remaining / otherSum;
+    rows.forEach((r,i) => {
+      if(i===activeIdx) return;
+      // keep non-dragged rows at exact precision so the locked total stays exactly 45
+      const e = metHours(r) * factor;
+      r.hours = Math.max(0, e / byId[r.id].met);
+    });
+  }
+
+  // ---- when locked, scale the activity sliders so rows + resistance crossover == CAP ----
+  function fitRowsToCap(){
+    const rt = rowsMet();
+    if (rt <= 0) return;
+    const f = rowsCap() / rt;
+    state.rows.forEach(r => { r.hours = Math.max(0, r.hours * f); });  // exact precision keeps the locked total on the cap
+  }
+
+  // ---- DOM refs ----
+  const rowsEl    = $("#rows");
+  const resultsEl = $("#results");
+
+  // ---- build the row sliders for the activities in your week ----
+  function buildRows(){
+    rowsEl.innerHTML = "";
+    state.rows.forEach((r, idx) => {
+      const a = byId[r.id];
+      if (!a) return;
+      const max = maxHours(a.met);
+      const col = colorFor(a);
+      const row = document.createElement("div");
+      row.className = "row";
+      row.innerHTML = `
+        <div class="row-top">
+          <span class="row-sw" style="background:${col}"></span>
+          <span class="row-name"><span class="rn">${esc(a.desc)}</span><span class="meta">${esc(a.cat)} · ${a.met} MET</span></span>
+          <span class="row-readout">
+            <span class="dur" data-dur></span>
+            <span class="met" data-met></span>
+          </span>
+          <button class="row-x" title="Remove" aria-label="Remove ${esc(shortName(a))}">×</button>
+        </div>
+        <input type="range" min="0" max="${max}" step="${STEP}" value="${r.hours}"
+               style="--track-color:${colorA(a,.30)}; --thumb:${col}; --ring:${colorA(a,.30)}"
+               aria-label="${esc(shortName(a))} hours per week" />
+      `;
+      const range = row.querySelector("input");
+      range.addEventListener("input", () => {
+        state.rows[idx].hours = clampStep(parseFloat(range.value), 0, max);
+        if (state.locked) redistribute(idx);
+        updateView();
+      });
+      row.querySelector(".row-x").addEventListener("click", () => {
+        state.rows.splice(idx,1);
+        buildRows(); updateView();
+      });
+      rowsEl.appendChild(row);
+    });
+    renderResults();
+  }
+
+  const clampStep = (v,min,max) => Math.min(max, Math.max(min, Math.round(v/STEP)*STEP));
+
+  // ---- activity browser: search / filter / sort the whole compendium ----
+  const CAP_RESULTS = 220;
+  const browse = { q:"", cat:"", key:"met", dir:-1 };   // met → high-to-low by default; name → A–Z
+
+  function buildCatFilter(){
+    $("#catFilter").innerHTML = `<option value="">All categories</option>` +
+      CATS.slice().sort().map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join("");
+  }
+
+  function matchedActivities(){
+    const words = browse.q.toLowerCase().split(/\s+/).filter(Boolean);
+    const list = COMPENDIUM.filter(a => {
+      if (browse.cat && a.cat !== browse.cat) return false;
+      if (!words.length) return true;
+      const hay = (a.desc + " " + a.cat).toLowerCase();
+      return words.every(w => hay.includes(w));
+    });
+    list.sort((a,b) => browse.key === "met"
+      ? browse.dir * ((a.met - b.met) || a.desc.localeCompare(b.desc))
+      : browse.dir * a.desc.localeCompare(b.desc));
+    return list;
+  }
+
+  function renderResults(){
+    if (!resultsEl) return;
+    const list = matchedActivities();
+    const frag = document.createDocumentFragment();
+    list.slice(0, CAP_RESULTS).forEach(a => {
+      const has = state.rows.some(r => r.id === a.code);
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "res" + (has ? " added" : "");
+      b.disabled = has;
+      b.innerHTML =
+        `<span class="res-met" style="background:${colorA(a,.16)};color:${colorFor(a)}">${a.met}</span>` +
+        `<span class="res-main"><span class="res-desc">${esc(a.desc)}</span><span class="res-cat">${esc(a.cat)}</span></span>` +
+        `<span class="res-add">${has ? "✓" : "+"}</span>`;
+      if (!has) b.addEventListener("click", () => addActivity(a.code));
+      frag.appendChild(b);
+    });
+    resultsEl.innerHTML = "";
+    resultsEl.appendChild(frag);
+    $("#resultsNote").textContent = list.length > CAP_RESULTS
+      ? `showing ${CAP_RESULTS} of ${list.length.toLocaleString()} — refine your search`
+      : `${list.length.toLocaleString()} activit${list.length === 1 ? "y" : "ies"}`;
+  }
+
+  function addActivity(code){
+    const a = byId[code];
+    if (!a || state.rows.some(r => r.id === code)) return;
+    if (state.locked){
+      state.rows.push({ id:code, hours: clampStep(CAP*0.15/a.met, 0, maxHours(a.met)) });
+      redistribute(state.rows.length - 1);
+    } else {
+      state.rows.push({ id:code, hours: Math.min(1, maxHours(a.met)) });
+    }
+    buildRows(); updateView();
+  }
+
+  function setSort(key){
+    if (browse.key === key) browse.dir *= -1;
+    else { browse.key = key; browse.dir = key === "met" ? -1 : 1; }
+    document.querySelectorAll(".sortbtn").forEach(b => {
+      const on = b.dataset.key === browse.key;
+      b.classList.toggle("is-active", on);
+      b.querySelector(".arr").textContent = on ? (browse.dir < 0 ? "▾" : "▴") : "";
+    });
+    renderResults();
+  }
+
+  // ---- targets (the cap) ----
+  const clampCap = (v,lo,hi) => Math.min(hi, Math.max(lo, Math.round(v/2.5)*2.5));
+  const clampMin = (v,lo,hi) => Math.min(hi, Math.max(lo, Math.round(v/5)*5));
+  function applyTarget(id, aer, res){
+    targetId = (id === "custom" || id === "longevity") ? id : "longevity";
+    if (targetId === "custom"){
+      CAP = clampCap(aer != null ? aer : CAP, 5, 90);
+      STR_GOAL = clampMin(res != null ? res : STR_GOAL, 0, 300);
+    } else { CAP = TARGETS[targetId].aerobic; STR_GOAL = TARGETS[targetId].resistance; }
+    syncTargetUI();
+  }
+  function syncTargetUI(){
+    const sel = $("#targetSel"); if (sel) sel.value = targetId;
+    const cust = targetId === "custom";
+    const cb = $("#targetCustom"); if (cb) cb.hidden = !cust;
+    const ca = $("#capAer"), cr = $("#capRes"); if (ca) ca.value = CAP; if (cr) cr.value = STR_GOAL;
+    const cite = $("#targetCite"), t = TARGETS[targetId];
+    if (cite) cite.innerHTML = t.url ? `<a href="${t.url}" target="_blank" rel="noopener">${esc(t.cite)}</a>` : esc(t.cite);
+  }
+  function buildTargetSelect(){
+    const sel = $("#targetSel"); if (!sel) return;
+    sel.innerHTML = Object.entries(TARGETS).map(([id,t]) => `<option value="${id}">${esc(t.label)}</option>`).join("");
+  }
+
+  // ---- dose-response "you are here" curves ----
+  function drInterp(data, x){
+    if (x <= data[0][0]) return data[0][1];
+    for (let i=1;i<data.length;i++){
+      if (x <= data[i][0]){ const [x0,y0]=data[i-1], [x1,y1]=data[i]; return y0 + (y1-y0)*((x-x0)/(x1-x0)); }
+    }
+    return data[data.length-1][1];
+  }
+  function curveSVG(data, {xMax, yMax, curX, capX, xUnit, color}){
+    const W=320,H=150, ml=10,mr=12,mt=16,mb=24, pw=W-ml-mr, ph=H-mt-mb;
+    const X = x => ml + Math.min(1, x/xMax)*pw;
+    const Y = y => mt + ph - Math.min(1, y/yMax)*ph;
+    const pts = data.map(d => [X(d[0]), Y(d[1])]);
+    const line = pts.map((p,i)=>(i?"L":"M")+p[0].toFixed(1)+" "+p[1].toFixed(1)).join(" ");
+    const area = line + ` L ${X(data[data.length-1][0]).toFixed(1)} ${Y(0).toFixed(1)} L ${X(0).toFixed(1)} ${Y(0).toFixed(1)} Z`;
+    const cy = drInterp(data, curX), cx = X(curX), cyp = Y(cy), capPx = X(capX);
+    return `<svg viewBox="0 0 ${W} ${H}" class="dr" role="img" aria-label="dose-response curve">`
+      + `<line class="ax" x1="${ml}" y1="${Y(0).toFixed(1)}" x2="${W-mr}" y2="${Y(0).toFixed(1)}"/>`
+      + `<path class="area" d="${area}" style="fill:${color};fill-opacity:.13"/><path class="line" d="${line}" style="stroke:${color}"/>`
+      + `<line class="cap" x1="${capPx.toFixed(1)}" y1="${mt-4}" x2="${capPx.toFixed(1)}" y2="${Y(0).toFixed(1)}"/>`
+      + `<text class="caplbl" x="${capPx.toFixed(1)}" y="${mt-6}" text-anchor="middle">cap ${fmtMet(capX)}</text>`
+      + `<line class="drop" x1="${cx.toFixed(1)}" y1="${cyp.toFixed(1)}" x2="${cx.toFixed(1)}" y2="${Y(0).toFixed(1)}"/>`
+      + `<circle class="you" cx="${cx.toFixed(1)}" cy="${cyp.toFixed(1)}" r="4.5"/>`
+      + `<text class="youlbl" x="${cx.toFixed(1)}" y="${(cyp-8).toFixed(1)}" text-anchor="middle">you</text>`
+      + `<text class="axlbl" x="${ml}" y="${H-6}" text-anchor="start">0</text>`
+      + `<text class="axlbl" x="${W-mr}" y="${H-6}" text-anchor="end">${xMax}${xUnit}</text></svg>`;
+  }
+  const niceTop = data => { const m = Math.max(0, ...data.map(d => d[1])); return Math.max(10, Math.ceil((m+4)/5)*5); };
+  function renderCurves(){
+    const o = OUTCOMES[outcomeKey] || OUTCOMES.mortality;
+    const aerTotal = totalMet();
+    const aerXMax = Math.max(55, Math.ceil((CAP+6)/5)*5);
+    const resXMax = Math.max(180, Math.ceil((STR_GOAL+30)/10)*10);
+    const ca = $("#curveAerobic"), cr = $("#curveResist");
+    if (ca) ca.innerHTML = `<div class="curve-cap">Aerobic — <b>~${Math.round(drInterp(o.aer, aerTotal))}%</b> lower ${esc(o.label.toLowerCase())} at your <b>${fmtMet(aerTotal)}</b> MET-hrs</div>`
+      + curveSVG(o.aer, {xMax:aerXMax, yMax:niceTop(o.aer), curX:aerTotal, capX:CAP, xUnit:"", color:o.color});
+    if (cr) cr.innerHTML = `<div class="curve-cap">Resistance — <b>~${Math.round(drInterp(o.res, state.strengthMin))}%</b> lower at your <b>${state.strengthMin}</b> min/wk</div>`
+      + curveSVG(o.res, {xMax:resXMax, yMax:niceTop(o.res), curX:state.strengthMin, capX:STR_GOAL, xUnit:"m", color:o.color});
+    const src = $("#curveSrc"); if (src) src.textContent = o.src;
+    const cav = $("#curveCaveat");
+    if (cav){
+      if (o.note){ cav.textContent = o.note; cav.style.setProperty("--curve-c", o.color); cav.hidden = false; }
+      else cav.hidden = true;
+    }
+  }
+
+  // ---- outcome switcher tabs ----
+  function buildMetricTabs(){
+    const el = $("#metricTabs"); if (!el) return;
+    el.innerHTML = "";
+    Object.entries(OUTCOMES).forEach(([key,o]) => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "mtab" + (key === outcomeKey ? " is-active" : "");
+      b.dataset.key = key;
+      b.innerHTML = `<span class="dotc" style="background:${o.color}"></span>${esc(o.short)}`;
+      if (key === outcomeKey){ b.style.background = o.color; b.style.borderColor = o.color; }
+      b.addEventListener("click", () => setOutcome(key));
+      el.appendChild(b);
+    });
+  }
+  function setOutcome(key){
+    if (!OUTCOMES[key]) return;
+    outcomeKey = key;
+    buildMetricTabs();
+    renderCurves();
+    saveState();
+  }
+
+  // ---- per-day breakdown ----
+  function renderPerDay(){
+    const el = $("#perday"); if (!el) return;
+    const r5 = x => Math.round(x/5)*5;
+    const items = [];
+    if (STR_GOAL > 0) items.push({ name:"Strength (target)", min:STR_GOAL, color:"var(--strength)" });
+    state.rows.forEach(r => { const a=byId[r.id]; if(a) items.push({ name:shortName(a), min:Math.round(r.hours*60), color:colorFor(a) }); });
+    el.innerHTML = "";
+    items.filter(it => it.min > 0).forEach(it => {
+      const row = document.createElement("div"); row.className = "pd";
+      row.innerHTML = `<span class="pd-sw" style="background:${it.color}"></span>`
+        + `<span class="pd-name">${esc(it.name)}<span class="pd-wk">${it.min} min / week</span></span>`
+        + `<span class="pd-cad">${r5(it.min/7)}m&nbsp;×7&nbsp;·&nbsp;${r5(it.min/3)}m&nbsp;×3&nbsp;·&nbsp;${r5(it.min/2)}m&nbsp;×2</span>`;
+      el.appendChild(row);
+    });
+    if (!el.children.length) el.innerHTML = `<div class="pd-empty">Add activities or set a strength target to see a daily plan.</div>`;
+  }
+
+  // ---- main view update ----
+  function updateView(){
+    const total = totalMet();
+    const scaleMax = Math.max(total, CAP);
+
+    // hero number
+    if (firstPaint){ animateNumber($("#metTotal"), 0, total, 850); firstPaint=false; }
+    else $("#metTotal").textContent = fmtMet(total);
+
+    $("#aerobicVal").textContent = `${fmtMet(total)} of ${CAP} MET-hrs`;
+    const cu = $("#capUnit"); if (cu) cu.textContent = fmtMet(CAP);
+
+    // status pill
+    const sw = $("#statusWrap");
+    if (total < CAP - 0.05){
+      const gap = CAP-total;
+      sw.innerHTML = `<span class="hero-status st-under"><span class="pip"></span>${fmtMet(gap)} to the cap</span>`;
+    } else if (total <= CAP + 0.5){
+      sw.innerHTML = `<span class="hero-status st-cap"><span class="pip"></span>At the longevity cap</span>`;
+    } else {
+      sw.innerHTML = `<span class="hero-status st-over"><span class="pip"></span>+${fmtMet(total-CAP)} past cap</span>`;
+    }
+
+    // budget bar segments
+    const fill = $("#budgetFill");
+    fill.innerHTML = "";
+    state.rows.forEach(r => {
+      const a = byId[r.id];
+      const w = (metHours(r)/scaleMax)*100;
+      if (w <= 0) return;
+      const seg = document.createElement("div");
+      seg.className = "seg";
+      seg.style.width = w + "%";
+      seg.style.background = colorFor(a);
+      seg.title = `${a.desc}: ${fmtMet(metHours(r))} MET-hrs (${fmtHrs(r.hours)})`;
+      fill.appendChild(seg);
+    });
+    const rmh = resistMetHrs();
+    if (rmh > 0){
+      const seg = document.createElement("div");
+      seg.className = "seg seg-str";
+      seg.style.width = (rmh/scaleMax)*100 + "%";
+      seg.title = `Resistance crossover: ${fmtMet(rmh)} MET-hrs (${state.strengthMin} min × ${RESIST_MET} MET)`;
+      fill.appendChild(seg);
+    }
+    const capPct = (CAP/scaleMax)*100;
+    $("#capMark").style.left = capPct + "%";
+    $("#capMark").dataset.cap = fmtMet(CAP);
+    const oz = $("#overZone");
+    if (total > CAP){ oz.style.left = capPct+"%"; oz.style.display="block"; }
+    else oz.style.display="none";
+
+    // strength bar
+    const sMax = Math.max(state.strengthMin, STR_GOAL);
+    $("#sFill").style.width = (state.strengthMin/sMax)*100 + "%";
+    $("#sMark").style.left = (STR_GOAL/sMax)*100 + "%";
+    $("#strengthVal").textContent = `${state.strengthMin} of ${STR_GOAL} min`;
+    $("#strMinRead").textContent = `${state.strengthMin} min`;
+    $("#strHrs").textContent = `${fmtHrs(state.strengthMin/60)} / week` + (state.strengthMin>=STR_GOAL ? " · goal met" : "");
+    const sc = $("#sbCross");
+    if (sc) sc.innerHTML = state.strengthMin > 0
+      ? `+<b>${fmtMet(resistMetHrs())}</b> MET-hrs to aerobic · ${state.strengthMin} min × ${RESIST_MET} MET <span class="src">squats/deadlift, 2024 Compendium</span>`
+      : `Adds to your aerobic budget at <b>${RESIST_MET} MET</b> once you log minutes.`;
+
+    // legend
+    const lg = $("#legend");
+    lg.innerHTML = "";
+    state.rows.forEach(r => {
+      const a = byId[r.id];
+      const el = document.createElement("span");
+      el.className = "lg";
+      el.innerHTML = `<span class="sw" style="background:${colorFor(a)}"></span>${esc(shortName(a))} <span class="h">${fmtHrs(r.hours)}</span>`;
+      lg.appendChild(el);
+    });
+    if (resistMetHrs() > 0){
+      const el = document.createElement("span");
+      el.className = "lg";
+      el.innerHTML = `<span class="sw" style="background:var(--strength)"></span>Strength → aerobic <span class="h">${fmtMet(resistMetHrs())} MET-hr</span>`;
+      lg.appendChild(el);
+    }
+
+    // sync every slider to state (covers redistribution)
+    [...rowsEl.querySelectorAll(".row")].forEach((rowEl,i) => {
+      const range = rowEl.querySelector("input");
+      if (document.activeElement !== range) range.value = state.rows[i].hours;
+      rowEl.querySelector("[data-dur]").textContent = fmtHrs(state.rows[i].hours);
+      rowEl.querySelector("[data-met]").textContent = fmtMet(metHours(state.rows[i])) + " MET-hr";
+    });
+    $("#strRange").value = state.strengthMin;
+
+    updateEquiv(total);
+    renderCurves();
+    renderPerDay();
+    saveState();
+  }
+
+  // ---- shuffle: 4 random activities from 4 random categories ----
+  function shuffleGap(){
+    const cats = CATS.slice();
+    for (let i=cats.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [cats[i],cats[j]]=[cats[j],cats[i]]; }
+    const chosen = [];
+    for (const c of cats){
+      if (chosen.length >= 4) break;
+      const inCat = COMPENDIUM.filter(a => a.cat === c && a.met >= 3);  // ≥3 MET = at least moderate, i.e. real exercise
+      if (inCat.length) chosen.push(inCat[Math.floor(Math.random()*inCat.length)].code);
+    }
+    gapPicks = chosen.length ? chosen : null;
+    updateEquiv(totalMet());
+  }
+
+  function gapChip(a, hrs, withPlus){
+    const c = document.createElement("button");
+    c.className = "chip";
+    c.innerHTML = `<span class="sw" style="background:${colorFor(a)}"></span>`
+      + `<span class="chip-main"><span class="chip-nm">${esc(shortName(a))}</span><span class="chip-cat">${esc(a.cat)}</span></span>`
+      + `<span class="amt">${fmtHrs(hrs)}</span>`
+      + (withPlus ? `<span class="plus">+${fmtMet(a.met*hrs)}</span>` : ``);
+    c.title = a.desc;
+    return c;
+  }
+
+  // ---- "ways to close the gap" ----
+  function updateEquiv(total){
+    const box = $("#equiv"), head = $("#equivHead"), swap = $("#equivSwap"), shuf = $("#shuffleBtn");
+    swap.innerHTML = "";
+    const gap = CAP - total;
+
+    if (gap > 0.05){
+      box.classList.remove("done");
+      if (shuf) shuf.hidden = false;
+      head.innerHTML = `<b>${fmtMet(gap)}</b> MET-hours to go — add any one of these:`;
+      (gapPicks || REFS).forEach(id => {
+        const a = byId[id];
+        if (!a) return;
+        const hrs = clampStep(gap/a.met, 0, maxHours(a.met));
+        if (hrs<=0) return;
+        const c = gapChip(a, hrs, true);
+        c.addEventListener("click", () => fillWith(id, hrs));
+        swap.appendChild(c);
+      });
+    } else {
+      box.classList.add("done");
+      if (shuf) shuf.hidden = true;
+      head.innerHTML = `You're at the cap. Your week equals any of these:`;
+      REFS.forEach(id => {
+        const a = byId[id];
+        if (!a) return;
+        const hrs = total/a.met;
+        const c = gapChip(a, hrs, false);
+        c.addEventListener("click", () => { state.rows=[{id, hours:clampStep(hrs,0,maxHours(a.met))}]; state.locked=false; gapPicks=null; syncLock(); buildRows(); updateView(); });
+        swap.appendChild(c);
+      });
+    }
+  }
+
+  // set an activity (adding if needed) to a specific hours value
+  function fillWith(id, hrs){
+    const existing = state.rows.find(r => r.id===id);
+    if (existing) existing.hours = clampStep(existing.hours + hrs, 0, maxHours(byId[id].met));
+    else state.rows.push({ id, hours: clampStep(hrs,0,maxHours(byId[id].met)) });
+    buildRows(); updateView();
+  }
+
+  // ---- count-up animation for the hero number ----
+  function animateNumber(el, from, to, dur){
+    const t0 = performance.now();
+    const tick = (t) => {
+      const p = Math.min(1, (t - t0)/dur);
+      const e = 1 - Math.pow(1-p, 3);
+      el.textContent = fmtMet(from + (to-from)*e);
+      if (p<1) requestAnimationFrame(tick);
+      else el.textContent = fmtMet(to);
+    };
+    requestAnimationFrame(tick);
+  }
+
+  // ---- lock toggle ----
+  function syncLock(){ $("#lockToggle").checked = state.locked; }
+  $("#lockToggle").addEventListener("change", (e) => {
+    state.locked = e.target.checked;
+    if (state.locked) fitRowsToCap();   // resistance crossover is fixed; scale the activity sliders to hit the cap
+    updateView();
+  });
+
+  // ---- activity browser wiring ----
+  $("#browseBtn").addEventListener("click", () => {
+    const p = $("#browsePanel");
+    p.hidden = !p.hidden;
+    if (!p.hidden){ renderResults(); $("#search").focus(); }
+  });
+  $("#search").addEventListener("input", e => { browse.q = e.target.value; renderResults(); });
+  $("#catFilter").addEventListener("change", e => { browse.cat = e.target.value; renderResults(); });
+  document.querySelectorAll(".sortbtn").forEach(b => b.addEventListener("click", () => setSort(b.dataset.key)));
+
+  // ---- target selector wiring ----
+  $("#targetSel").addEventListener("change", e => { applyTarget(e.target.value); updateView(); });
+  const onCustom = () => { if (targetId === "custom"){ applyTarget("custom", parseFloat($("#capAer").value), parseFloat($("#capRes").value)); updateView(); } };
+  $("#capAer").addEventListener("input", onCustom);
+  $("#capRes").addEventListener("input", onCustom);
+
+  // ---- shuffle wiring ----
+  $("#shuffleBtn")?.addEventListener("click", shuffleGap);
+
+  // ---- strength ----
+  $("#strRange").addEventListener("input", (e) => {
+    state.strengthMin = parseInt(e.target.value,10);
+    if (state.locked) fitRowsToCap();   // keep the locked total on the cap as the crossover changes
+    updateView();
+  });
+
+  // ---- reset ----
+  $("#resetBtn").addEventListener("click", () => {
+    try{ localStorage.removeItem(STORE_KEY); }catch(e){}
+    state = structuredClone(DEFAULTS);
+    firstPaint = true;
+    gapPicks = null;
+    outcomeKey = "mortality";
+    applyTarget("longevity");
+    buildMetricTabs();
+    syncLock(); buildRows(); updateView();
+  });
+
+  // ---- init ----
+  $("#browseBtn").innerHTML = `+ Browse all <b>${COMPENDIUM.length.toLocaleString()}</b> activities`;
+  $("#search").placeholder = `Search ${COMPENDIUM.length.toLocaleString()} activities…`;
+  const cc = $("#catalogCount"); if (cc) cc.textContent = COMPENDIUM.length.toLocaleString();
+  buildCatFilter();
+  buildTargetSelect();
+  const saved = loadState();
+  if (saved){
+    if (saved.state.rows.length) state = saved.state;
+    if (saved.outcome) outcomeKey = saved.outcome;
+    applyTarget(saved.target.id, saved.target.aer, saved.target.res);
+  } else {
+    syncTargetUI();
+  }
+  buildMetricTabs();
+  buildRows();
+  syncLock();
+  $("#strRange").value = state.strengthMin;
+  updateView();
+})();
+</script>
+</body>
+</html>
