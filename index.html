@@ -83,6 +83,18 @@
   /* ----- instrument panel ----- */
   .instrument{z-index:5;}
   .instrument .panel + .panel{margin-top:18px;}
+  @media(max-width:919px){
+    /* single column: promote panels to grid items so inputs sit above the output charts */
+    .instrument, .controls{display:contents;}
+    .instrument.reveal, .controls.reveal{opacity:1; animation:none;}
+    .instrument .panel + .panel, .controls .panel + .panel{margin-top:0;}
+    .panel.hero{order:1;}
+    .panel-aerobic{order:2;}
+    .panel-resistance{order:3;}
+    .curve-panel{order:4;}
+    .panel-perday{order:5;}
+    .reset-wrap{order:6;}
+  }
   .panel{
     background:var(--card); border:1px solid var(--card-border); border-radius:var(--r);
     box-shadow:var(--shadow); padding:22px;
@@ -166,6 +178,15 @@
   .sect-head{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:4px;}
   .sect-head h2{font-family:"Fraunces",serif; font-weight:600; font-size:21px; margin:0; letter-spacing:-.01em;}
   .sect-head .sub{font-size:12.5px; color:var(--muted);}
+
+  /* collapsible cards (output panels) */
+  details.card > summary{list-style:none; cursor:pointer; margin-bottom:0;}
+  details.card > summary::-webkit-details-marker{display:none;}
+  details.card > summary::marker{content:"";}
+  details.card[open] > summary{margin-bottom:14px;}
+  .card-chev{font-family:"DM Mono",monospace; font-size:20px; line-height:1; color:var(--muted); transition:transform .25s ease, color .15s; flex:none;}
+  details.card[open] .card-chev{transform:rotate(180deg);}
+  details.card > summary:hover .card-chev{color:var(--ink);}
 
   .lock{
     display:inline-flex; align-items:center; gap:9px; cursor:pointer; user-select:none;
@@ -399,24 +420,25 @@
         </div>
       </div>
 
-      <div class="panel curve-panel">
-        <div class="sect-head">
+      <details class="panel curve-panel card" data-collapse-mobile open>
+        <summary class="sect-head">
           <div>
             <h2>Where you land</h2>
             <div class="sub">Lower risk vs your weekly dose — pick an outcome.</div>
           </div>
-        </div>
+          <span class="card-chev" aria-hidden="true">⌄</span>
+        </summary>
         <div class="metric-tabs" id="metricTabs" role="group" aria-label="Outcome"></div>
         <div class="curve" id="curveAerobic"></div>
         <div class="curve" id="curveResist"></div>
         <div class="curve-caveat" id="curveCaveat" hidden></div>
         <div class="curve-note">Approximate dose-response, digitised by dose band from published meta-analyses — associations, not proof of causation, and the high-dose tail is extrapolated from sparse data. Your aerobic dose includes the resistance crossover. Source: <span id="curveSrc"></span></div>
-      </div>
+      </details>
     </section>
 
     <!-- ===================== CONTROLS ===================== -->
     <section class="controls reveal" style="animation-delay:.18s">
-      <div class="panel">
+      <div class="panel panel-aerobic">
         <div class="sect-head">
           <div>
             <h2>Aerobic movement</h2>
@@ -450,7 +472,7 @@
         </div>
       </div>
 
-      <div class="panel">
+      <div class="panel panel-resistance">
         <div class="sect-head">
           <div>
             <h2>Resistance training</h2>
@@ -468,17 +490,18 @@
         </div>
       </div>
 
-      <div class="panel">
-        <div class="sect-head">
+      <details class="panel panel-perday card" data-collapse-mobile open>
+        <summary class="sect-head">
           <div>
             <h2>Your week, by day</h2>
             <div class="sub">Ways to spread each target across the week.</div>
           </div>
-        </div>
+          <span class="card-chev" aria-hidden="true">⌄</span>
+        </summary>
         <div class="perday" id="perday"></div>
-      </div>
+      </details>
 
-      <div style="text-align:center">
+      <div class="reset-wrap" style="text-align:center">
         <button class="reset" id="resetBtn">Reset week</button>
       </div>
     </section>
@@ -1084,6 +1107,12 @@
     syncLock(); buildRows(); updateView();
   });
 
+  // ---- collapse the heavy output cards by default on small screens ----
+  function applyMobileCollapse(){
+    const mobile = window.matchMedia("(max-width:919px)").matches;
+    document.querySelectorAll("details.card[data-collapse-mobile]").forEach(d => { d.open = !mobile; });
+  }
+
   // ---- init ----
   $("#browseBtn").innerHTML = `+ Browse all <b>${COMPENDIUM.length.toLocaleString()}</b> activities`;
   $("#search").placeholder = `Search ${COMPENDIUM.length.toLocaleString()} activities…`;
@@ -1103,6 +1132,7 @@
   syncLock();
   $("#strRange").value = state.strengthMin;
   updateView();
+  applyMobileCollapse();
 })();
 </script>
 </body>
